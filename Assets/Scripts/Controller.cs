@@ -114,13 +114,24 @@ public class Controller : MonoBehaviour
             case Constants.CopSelected:
                 //Si es una casilla roja, nos movemos
                 if (tiles[clickedTile].selectable)
-                {                  
+                {
+                    // Verifica que no haya ya un policía en esa casilla
+                    int otherCop = (clickedCop == 0) ? 1 : 0;
+                    int otherCopTile = cops[otherCop].GetComponent<CopMove>().currentTile;
+
+                    if (clickedTile == otherCopTile)
+                    {
+                        Debug.Log("No puedes mover dos policías a la misma casilla.");
+                        return;
+                    }
+
+                    // Movimiento válido
                     cops[clickedCop].GetComponent<CopMove>().MoveToTile(tiles[clickedTile]);
-                    cops[clickedCop].GetComponent<CopMove>().currentTile=tiles[clickedTile].numTile;
-                    tiles[clickedTile].current = true;   
-                    
+                    cops[clickedCop].GetComponent<CopMove>().currentTile = tiles[clickedTile].numTile;
+                    tiles[clickedTile].current = true;
+
                     state = Constants.TileSelected;
-                }                
+                }
                 break;
             case Constants.TileSelected:
                 state = Constants.Init;
@@ -220,28 +231,16 @@ public class Controller : MonoBehaviour
 
     public void FindSelectableTiles(bool cop)
     {
-                 
-        int indexcurrentTile;        
+        int indexcurrentTile;
 
-        if (cop==true)
+        if (cop)
             indexcurrentTile = cops[clickedCop].GetComponent<CopMove>().currentTile;
         else
             indexcurrentTile = robber.GetComponent<RobberMove>().currentTile;
 
-        //La ponemos rosa porque acabamos de hacer un reset
         tiles[indexcurrentTile].current = true;
 
-        //Cola para el BFS
         Queue<Tile> nodes = new Queue<Tile>();
-
-        //TODO: Implementar BFS. Los nodos seleccionables los ponemos como selectable=true
-        //Tendrás que cambiar este código por el BFS
-       /* for (int i = 0; i < Constants.NumTiles; i++)
-        {
-            tiles[i].selectable = true;
-        }*/
-
-        //-------------------------------------------------------------Añadido
         Dictionary<Tile, int> distances = new Dictionary<Tile, int>();
 
         Tile startTile = tiles[indexcurrentTile];
@@ -253,7 +252,7 @@ public class Controller : MonoBehaviour
             Tile current = nodes.Dequeue();
             int dist = distances[current];
 
-            if (dist >= 2) continue; // No ir más allá de 2 movimientos
+            if (dist >= 2) continue;
 
             foreach (int neighborIndex in current.adjacency)
             {
@@ -261,12 +260,12 @@ public class Controller : MonoBehaviour
 
                 if (distances.ContainsKey(neighbor)) continue;
 
-                // Si es un policía, no puede pasar por la casilla del otro
+                // Bloquear paso por la casilla del otro policía si estamos calculando para un policía
                 if (cop)
                 {
                     int otherCopIndex = (clickedCop == 0) ? 1 : 0;
                     int otherCopTile = cops[otherCopIndex].GetComponent<CopMove>().currentTile;
-                    if (current.numTile == otherCopTile) continue;
+                    if (neighbor.numTile == otherCopTile) continue;
                 }
 
                 distances[neighbor] = dist + 1;
@@ -274,7 +273,6 @@ public class Controller : MonoBehaviour
             }
         }
 
-        // Marcar las casillas válidas como seleccionables (excluyendo la inicial)
         foreach (var pair in distances)
         {
             if (pair.Key.numTile != indexcurrentTile)
@@ -283,13 +281,14 @@ public class Controller : MonoBehaviour
             }
         }
     }
-    
-   
-    
 
-    
 
-   
 
-       
+
+
+
+
+
+
+
 }
