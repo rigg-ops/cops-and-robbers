@@ -49,16 +49,34 @@ public class Controller : MonoBehaviour
 
     public void InitAdjacencyLists()
     {
-        //Matriz de adyacencia
         int[,] matriu = new int[Constants.NumTiles, Constants.NumTiles];
 
-        //TODO: Inicializar matriz a 0's
+        for (int i = 0; i < Constants.NumTiles; i++)
+        {
+            int fila = i / 8;
+            int columna = i % 8;
 
-        //TODO: Para cada posición, rellenar con 1's las casillas adyacentes (arriba, abajo, izquierda y derecha)
+            if (fila > 0) matriu[i, i - 8] = 1;     // arriba
+            if (fila < 7) matriu[i, i + 8] = 1;     // abajo
+            if (columna > 0) matriu[i, i - 1] = 1;  // izquierda
+            if (columna < 7) matriu[i, i + 1] = 1;  // derecha
+        }
 
-        //TODO: Rellenar la lista "adjacency" de cada casilla con los índices de sus casillas adyacentes
+        for (int i = 0; i < Constants.NumTiles; i++)
+        {
+            tiles[i].adjacency = new List<int>();
 
+            for (int j = 0; j < Constants.NumTiles; j++)
+            {
+                if (matriu[i, j] == 1)
+                {
+                    tiles[i].adjacency.Add(j);
+                }
+            }
+        }
     }
+
+
 
     //Reseteamos cada casilla: color, padre, distancia y visitada
     public void ResetTiles()
@@ -139,14 +157,27 @@ public class Controller : MonoBehaviour
     {
         clickedTile = robber.GetComponent<RobberMove>().currentTile;
         tiles[clickedTile].current = true;
+       
         FindSelectableTiles(false);
 
-        /*TODO: Cambia el código de abajo para hacer lo siguiente
-        - Elegimos una casilla aleatoria entre las seleccionables que puede ir el caco
-        - Movemos al caco a esa casilla
-        - Actualizamos la variable currentTile del caco a la nueva casilla
-        */
-        robber.GetComponent<RobberMove>().MoveToTile(tiles[robber.GetComponent<RobberMove>().currentTile]);
+        // Crear una lista con las casillas seleccionables
+        List<Tile> opciones = new List<Tile>();
+        for (int i = 0; i < Constants.NumTiles; i++)
+        {
+            if (tiles[i].selectable)
+            {
+                opciones.Add(tiles[i]);
+            }
+        }
+
+        // Si hay alguna casilla alcanzable, movemos al ladrón
+        if (opciones.Count > 0)
+        {
+            Tile destino = opciones[Random.Range(0, opciones.Count)];
+
+            robber.GetComponent<RobberMove>().MoveToTile(destino);
+            robber.GetComponent<RobberMove>().currentTile = destino.numTile;
+        }
     }
 
     public void EndGame(bool end)
