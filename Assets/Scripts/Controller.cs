@@ -56,10 +56,10 @@ public class Controller : MonoBehaviour
             int fila = i / 8;
             int columna = i % 8;
 
-            if (fila > 0) matriu[i, i - 8] = 1;     // arriba
-            if (fila < 7) matriu[i, i + 8] = 1;     // abajo
-            if (columna > 0) matriu[i, i - 1] = 1;  // izquierda
-            if (columna < 7) matriu[i, i + 1] = 1;  // derecha
+            if (fila > 0) matriu[i, i - 8] = 1;     
+            if (fila < 7) matriu[i, i + 8] = 1;     
+            if (columna > 0) matriu[i, i - 1] = 1;  
+            if (columna < 7) matriu[i, i + 1] = 1;  
         }
 
         for (int i = 0; i < Constants.NumTiles; i++)
@@ -113,7 +113,7 @@ public class Controller : MonoBehaviour
         {            
             case Constants.CopSelected:
                 //Si es una casilla roja, nos movemos
-                if (tiles[clickedTile].selectable) //cambio para buen funcionamiento
+                if (tiles[clickedTile].selectable) 
                 {
                     // Verifica que no haya ya un policía en esa casilla
                     int otherCop = (clickedCop == 0) ? 1 : 0;
@@ -171,7 +171,7 @@ public class Controller : MonoBehaviour
 
         FindSelectableTiles(false);
 
-        // Crear una lista con las casillas seleccionables
+        
         List<Tile> opciones = new List<Tile>();
         for (int i = 0; i < Constants.NumTiles; i++)
         {
@@ -192,14 +192,14 @@ public class Controller : MonoBehaviour
         */
 
         // EXTRA
-        // Si no hay opciones, no hacemos nada
+        
         if (opciones.Count == 0) return;
 
-        // Posiciones de los policías
+        
         int cop0 = cops[0].GetComponent<CopMove>().currentTile;
         int cop1 = cops[1].GetComponent<CopMove>().currentTile;
 
-        // Distancias desde los policías
+        
         Dictionary<int, int> distCop0 = CalcularDistanciasDesde(cop0);
         Dictionary<int, int> distCop1 = CalcularDistanciasDesde(cop1);
 
@@ -211,7 +211,7 @@ public class Controller : MonoBehaviour
             int d0 = distCop0.ContainsKey(t.numTile) ? distCop0[t.numTile] : 0;
             int d1 = distCop1.ContainsKey(t.numTile) ? distCop1[t.numTile] : 0;
 
-            int minDistancia = Mathf.Min(d0, d1); // Importante: distancia al policía más cercano
+            int minDistancia = Mathf.Min(d0, d1); 
 
             if (minDistancia > mejorMinDistancia)
             {
@@ -220,7 +220,7 @@ public class Controller : MonoBehaviour
             }
         }
 
-        // Mover al ladrón a la casilla más alejada del policía más cercano
+       
         robber.GetComponent<RobberMove>().MoveToTile(mejorOpcion);
         robber.GetComponent<RobberMove>().currentTile = mejorOpcion.numTile;
 
@@ -320,7 +320,7 @@ public class Controller : MonoBehaviour
     }
 
     // EXTRA
-    // Calcula distancias desde una casilla origen usando BFS clásico
+    
     private Dictionary<int, int> CalcularDistanciasDesde(int origen)
     {
         Dictionary<int, int> distancias = new Dictionary<int, int>();
