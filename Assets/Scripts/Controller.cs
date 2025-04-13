@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Search;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -204,12 +205,52 @@ public class Controller : MonoBehaviour
 
         //TODO: Implementar BFS. Los nodos seleccionables los ponemos como selectable=true
         //Tendrás que cambiar este código por el BFS
-        for(int i = 0; i < Constants.NumTiles; i++)
+       /* for (int i = 0; i < Constants.NumTiles; i++)
         {
             tiles[i].selectable = true;
+        }*/
+
+        //-------------------------------------------------------------Añadido
+        Dictionary<Tile, int> distances = new Dictionary<Tile, int>();
+
+        Tile startTile = tiles[indexcurrentTile];
+        nodes.Enqueue(startTile);
+        distances[startTile] = 0;
+
+        while (nodes.Count > 0)
+        {
+            Tile current = nodes.Dequeue();
+            int dist = distances[current];
+
+            if (dist >= 2) continue; // No ir más allá de 2 movimientos
+
+            foreach (int neighborIndex in current.adjacency)
+            {
+                Tile neighbor = tiles[neighborIndex];
+
+                if (distances.ContainsKey(neighbor)) continue;
+
+                // Si es un policía, no puede pasar por la casilla del otro
+                if (cop)
+                {
+                    int otherCopIndex = (clickedCop == 0) ? 1 : 0;
+                    int otherCopTile = cops[otherCopIndex].GetComponent<CopMove>().currentTile;
+                    if (current.numTile == otherCopTile) continue;
+                }
+
+                distances[neighbor] = dist + 1;
+                nodes.Enqueue(neighbor);
+            }
         }
 
-
+        // Marcar las casillas válidas como seleccionables (excluyendo la inicial)
+        foreach (var pair in distances)
+        {
+            if (pair.Key.numTile != indexcurrentTile)
+            {
+                pair.Key.selectable = true;
+            }
+        }
     }
     
    
